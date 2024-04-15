@@ -73,28 +73,5 @@ ThreadPool::~ThreadPool() {
     }
 }
 
-void test() {
-    {
-        std::mutex mutex;
-        ThreadPool pool(10);
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(1, 100);
-        for (int i = 0; i < 1000; ++i) {
-            int sleepTime = distrib(gen);
-            pool.submit([i, sleepTime, &mutex] {
-                std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-                std::lock_guard<std::mutex> lock(mutex);
-                std::cout << "Task " << i << " executed by thread " << std::this_thread::get_id() << std::endl << std::flush;
-            });
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-    }
-    std::cout << "All tasks completed, main thread exiting." << std::endl;
-}
 
-int main() {
-    test();
-    return 0;
-}
 

@@ -68,7 +68,7 @@ public:
     std::future<std::result_of_t<FuncType()>> submit(FuncType func) {
         using result_type = std::result_of_t<FuncType()>;
         std::packaged_task<result_type()> task(std::move(func));
-        std::future<result_type> res(task.get_future());  // 4 
+        std::future<result_type> res(task.get_future());
         int idx = random();
         {
             std::lock_guard<std::mutex> lock(queues_lock[idx]);
