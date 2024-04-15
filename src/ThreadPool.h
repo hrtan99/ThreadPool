@@ -65,9 +65,23 @@ public:
     ThreadPool(int numThreads);
     ~ThreadPool();
     template<typename FuncType>
-    std::future<std::result_of_t<FuncType()>> submit(FuncType func) {
+    std::future<std::result_of_t<FuncType()>> submit(FuncType&& func) {
         using result_type = std::result_of_t<FuncType()>;
         std::packaged_task<result_type()> task(std::move(func));
+        std::future<result_type> res(task.get_future());
+        int idx = random();
+        {
+            std::lock_guard<std::mutex> lock(queues_lock[idx]);
+            queues[idx].push_back(new RunnableTask(std::move(task)));
+            cvs[idx].notify_all();
+        }
+        return res;
+    }
+
+    template<typename FuncType, typename... Args>
+    std::future<std::invoke_result_t<FuncType, Args...>> submit(FuncType&& func, Args&&... args) {
+        using result_type = std::invoke_result_t<FuncType, Args...>;
+        std::packaged_task<result_type()> task(std::bind(std::forward<FuncType>(func), std::forward<Args>(args)...));
         std::future<result_type> res(task.get_future());
         int idx = random();
         {
