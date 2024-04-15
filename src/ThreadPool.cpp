@@ -1,6 +1,5 @@
 #include "ThreadPool.h"
 
-
 void RunnableTask::execute() {
     wrapper->run();
 }

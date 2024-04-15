@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB SOURCES "src/*.cpp")
 
-include_directories(include src)
+include_directories(include)
 
 add_library(ThreadPool SHARED ${SOURCES})
 
