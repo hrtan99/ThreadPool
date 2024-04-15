@@ -8,7 +8,7 @@
 #include <atomic>
 #include <map>
 #include <random>
-
+#include <future>
 
 class Task {
 public:
@@ -64,7 +64,19 @@ class ThreadPool {
 public:
     ThreadPool(int numThreads);
     ~ThreadPool();
-    void submit(std::function<void()> func);
+    template<typename FuncType>
+    std::future<std::result_of_t<FuncType()>> submit(FuncType func) {
+        using result_type = std::result_of_t<FuncType()>;
+        std::packaged_task<result_type()> task(std::move(func));
+        std::future<result_type> res(task.get_future());  // 4 
+        int idx = random();
+        {
+            std::lock_guard<std::mutex> lock(queues_lock[idx]);
+            queues[idx].push_back(new RunnableTask(std::move(task)));
+            cvs[idx].notify_all();
+        }
+        return res;
+    }
 
 };
 

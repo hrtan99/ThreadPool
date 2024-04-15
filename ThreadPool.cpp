@@ -65,15 +65,6 @@ ThreadPool::ThreadPool(int numThreads) : stop(false), distrib(0, numThreads - 1)
     }
 }
 
-void ThreadPool::submit(std::function<void()> func) {
-    int idx = random();
-    {
-        std::lock_guard<std::mutex> lock(queues_lock[idx]);
-        queues[idx].push_back(new RunnableTask(func));
-        cvs[idx].notify_all();
-    }
-}
-
 ThreadPool::~ThreadPool() {
     stop = true;
     for (int i = 0; i < threads.size(); ++i) {
