@@ -13,14 +13,38 @@
 class Task {
 public:
     virtual void execute() = 0;
-    virtual ~Task();
+    virtual ~Task() { }
 };
 
 class RunnableTask : public Task {
-    std::function<void()> func;
+
+    struct WrapperBase {
+        virtual void run() = 0;
+        virtual ~WrapperBase() { };
+    };
+
+    template<class F>
+    struct WrapperImpl : WrapperBase {
+        F func;
+        WrapperImpl(F&& f) : func(std::move(f)) { }
+        void run() override { func(); }
+    };
+
+    std::shared_ptr<WrapperBase> wrapper;
+
 public:
-    RunnableTask(std::function<void()> func);
+    template<class F>
+    RunnableTask(F&& f) : wrapper(new WrapperImpl(std::move(f))) { }
     void execute();
+    void operator()() { wrapper->run(); }
+    RunnableTask(RunnableTask&& other) : wrapper(std::move(other.wrapper)) { }
+    RunnableTask& operator=(RunnableTask&& other) {
+        wrapper = std::move(other.wrapper);
+        return *this;
+    }
+    RunnableTask(const RunnableTask&) = delete;
+    RunnableTask(RunnableTask&) = delete;
+    RunnableTask& operator=(const RunnableTask&) = delete;
 };
 
 class ThreadPool {

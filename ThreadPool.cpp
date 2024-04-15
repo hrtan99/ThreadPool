@@ -1,11 +1,8 @@
 #include "ThreadPool.h"
 
 
-Task::~Task() {}
-
-RunnableTask::RunnableTask(std::function<void()> func) : func(func) {}
 void RunnableTask::execute() {
-    func();
+    wrapper->run();
 }
 
 Task* ThreadPool::stealTask(int cur) {
