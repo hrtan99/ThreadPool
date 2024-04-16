@@ -73,8 +73,8 @@ public:
         {
             std::lock_guard<std::mutex> lock(queues_lock[idx]);
             queues[idx].push_back(new RunnableTask(std::move(task)));
-            cvs[idx].notify_all();
         }
+        cvs[idx].notify_all();
         return res;
     }
 
@@ -87,8 +87,8 @@ public:
         {
             std::lock_guard<std::mutex> lock(queues_lock[idx]);
             queues[idx].push_back(new RunnableTask(std::move(task)));
-            cvs[idx].notify_all();
         }
+        cvs[idx].notify_all();
         return res;
     }
 

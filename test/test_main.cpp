@@ -2,7 +2,6 @@
 
 int print(int i, int time) {
     std::this_thread::sleep_for(std::chrono::milliseconds(time));
-    std::cout << "Task " << i << " executed by thread " << std::this_thread::get_id() << std::endl << std::flush;
     return i;
 }
 
@@ -31,7 +30,7 @@ void test() {
             
         }
         std::cout << "total is: " << total << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        // std::this_thread::sleep_for(std::chrono::seconds(10));
     }
     std::cout << "All tasks completed, main thread exiting." << std::endl;
 }
