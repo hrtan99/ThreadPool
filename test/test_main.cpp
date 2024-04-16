@@ -1,4 +1,4 @@
-#include "ThreadPool.h"
+#include "ThreadPool.hpp"
 
 int print(int i, int time) {
     std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -9,6 +9,7 @@ void test() {
     {
         std::mutex mutex;
         ThreadPool pool(10);
+        pool.init();
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 100);
@@ -30,7 +31,7 @@ void test() {
             
         }
         std::cout << "total is: " << total << std::endl;
-        // std::this_thread::sleep_for(std::chrono::seconds(10));
+        pool.shut();
     }
     std::cout << "All tasks completed, main thread exiting." << std::endl;
 }

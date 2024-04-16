@@ -2,10 +2,11 @@
 #include <vector>
 #include <random>
 #include <chrono>
-#include "ThreadPool.h"
+#include "ThreadPool.hpp"
 
 double monteCarloIntegrationThreadPool(int num_samples, int num_threads) {
     ThreadPool pool(num_threads);
+    pool.init();
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -23,7 +24,7 @@ double monteCarloIntegrationThreadPool(int num_samples, int num_threads) {
     for (auto& sample : samples) {
         sum += sample.get();
     }
-
+    pool.shut();
     return sum / num_samples;
 }
 
