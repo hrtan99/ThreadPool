@@ -36,9 +36,7 @@ class RunnableTask : public Task {
 public:
     template<class F>
     RunnableTask(F&& f) : wrapper(new WrapperImpl(std::move(f))) { }
-    void execute() {
-        wrapper->run();
-    }
+    void execute() { wrapper->run(); }
     void operator()() { wrapper->run(); }
     RunnableTask(RunnableTask&& other) : wrapper(std::move(other.wrapper)) { }
     RunnableTask& operator=(RunnableTask&& other) {

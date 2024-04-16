@@ -1,7 +1,9 @@
 #include "ThreadPool.hpp"
 
-int print(int i, int time) {
+int print(int& i, int& time, std::mutex& mutex) {
     std::this_thread::sleep_for(std::chrono::milliseconds(time));
+    std::lock_guard<std::mutex> lock(mutex);
+    std::cout << "Task " << i << " executed by thread " << std::this_thread::get_id() << std::endl << std::flush;
     return i;
 }
 
@@ -23,7 +25,7 @@ void test() {
             //     std::cout << "Task " << i << " executed by thread " << std::this_thread::get_id() << std::endl << std::flush;
             //     return i;
             // });
-            results[i] = pool.submit(print, i, sleepTime);
+            results[i] = pool.submit(print, i, sleepTime, std::ref(mutex));
         }
         int total = 0;
         for (auto& res : results) {
