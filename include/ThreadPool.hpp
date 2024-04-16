@@ -80,12 +80,10 @@ class ThreadPool {
     }
 
     void worker(int idx) {
-
         if (!start) {
             std::unique_lock<std::mutex> lock(mutex);
             cv.wait(lock);
         }
-
         while (!stop) {
             Task* task = nullptr;
             {
@@ -116,9 +114,9 @@ class ThreadPool {
     }
 
 public:
-    ThreadPool(int numThreads) : start(false), stop(false), distrib(0, numThreads - 1), queues_lock(numThreads), cvs(numThreads), threshold(numThreads) {
+    ThreadPool(int numThreads) : start(false), stop(false), distrib(0, numThreads - 1), queues_lock(numThreads), cvs(numThreads), threshold(numThreads) { }
 
-    }
+    ThreadPool() : ThreadPool(std::thread::hardware_concurrency()) { }
 
     ~ThreadPool() {
         if (!stop) shut();

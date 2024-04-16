@@ -10,7 +10,8 @@ int print(int& i, int& time, std::mutex& mutex) {
 void test() {
     {
         std::mutex mutex;
-        ThreadPool pool(10);
+        ThreadPool pool;
+        std::cout << "max thread num is: " << std::thread::hardware_concurrency() << std::endl;
         pool.init();
         std::random_device rd;
         std::mt19937 gen(rd());
