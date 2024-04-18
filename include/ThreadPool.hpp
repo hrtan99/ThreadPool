@@ -36,7 +36,7 @@ class RunnableTask : public Task {
 public:
     template<class F>
     RunnableTask(F&& f) : wrapper(new WrapperImpl(std::move(f))) { }
-    void execute() { wrapper->run(); }
+    void execute() override { wrapper->run(); }
     void operator()() { wrapper->run(); }
     RunnableTask(RunnableTask&& other) : wrapper(std::move(other.wrapper)) { }
     RunnableTask& operator=(RunnableTask&& other) {
@@ -49,19 +49,21 @@ public:
 };
 
 class ThreadPool {
+    std::atomic<bool> start, stop;
+    std::mutex mutex;
+    std::condition_variable cv;
     std::vector<std::thread> threads;
     std::vector<std::deque<Task*>> queues;
     std::vector<std::mutex> queues_lock;
     std::vector<std::condition_variable> cvs;
-    std::atomic<bool> start, stop;
-    std::condition_variable cv;
     std::uniform_int_distribution<> distrib;
     std::unordered_map<std::thread::id, int> idMap;
-    std::mutex mutex;
+
     int threshold;
 
     Task* stealTask(int cur) {
-        for (int idx = random() % threads.size(), i = 0; i < threads.size(); idx = (idx + 1) % threads.size(), ++i) {
+        int size = threads.size();
+        for (int idx = random() % size, i = 0; i < size; idx = (idx + 1) % size, ++i) {
             if (idx != cur && !queues[idx].empty()) {
                 Task* task = nullptr;
                 {
@@ -114,7 +116,7 @@ class ThreadPool {
     }
 
 public:
-    ThreadPool(int numThreads) : start(false), stop(false), distrib(0, numThreads - 1), queues_lock(numThreads), cvs(numThreads), threshold(numThreads) { }
+    ThreadPool(int numThreads) : start(false), stop(false), queues_lock(numThreads), cvs(numThreads), distrib(0, numThreads - 1), threshold(numThreads) { }
 
     ThreadPool() : ThreadPool(std::thread::hardware_concurrency()) { }
 
